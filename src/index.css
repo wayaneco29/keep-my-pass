@@ -11,3 +11,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.slide-pane__header {
+  flex: 0 0 2.86rem !important;
+  height: 2.86rem !important;
+  background: rgb(66, 133, 244) !important;
+  color: white !important;
+}
+
+.pane__header .slide-pane__close {
+  font-size: 2rem;
+}

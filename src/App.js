@@ -1,26 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+import Homepage from './components/Homepage';
+import Dashboard from './components/Dashboard';
+
+
+
 import './App.css';
+import 'antd/dist/antd.css';
+import "react-sliding-pane/dist/react-sliding-pane.css";
+
+
+
 
 function App() {
+  const [showSlide, setShowSlide] = React.useState(false);
+  const [isLogin, setIsLogin] = React.useState(false);
+
+  const handleLoginShow = (bool) => setIsLogin(bool);
+  const handleToggleShow = () => setShowSlide(!showSlide);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <Switch>
+          <Route path="/" exact>
+            <Homepage 
+              isLogin={isLogin} 
+              show={showSlide} 
+              handleLoginShow={handleLoginShow} 
+              handleToggleShow={handleToggleShow} 
+            />
+          </Route>
+          <Route path="/menu">
+            <Dashboard />
+          </Route>
+        </Switch>
+      </Router>
     </div>
-  );
+  )
 }
 
 export default App;
