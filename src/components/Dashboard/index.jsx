@@ -1,11 +1,14 @@
 import React from 'react';
 
+import { useHistory } from 'react-router-dom';
+
 import InfoPage from './components/Slider';
 
-import { MenuOutlined, RightOutlined } from '@ant-design/icons';
+import { firebaseAuth, firestore } from '../../firebase';
 
-import { Card } from 'antd';
+import { MenuOutlined, RightOutlined, FrownOutlined, PlusOutlined } from '@ant-design/icons';
 import Drawer from './components/Drawer';
+import { Card, Button, Spin } from 'antd';
 
 const root = {
     nav: {
@@ -15,6 +18,9 @@ const root = {
         background: '#4285F4',
         borderBottom: 0,
         position: 'relative',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     div: {
         display: 'flex',
@@ -54,15 +60,62 @@ const root = {
         flex: '1 1 0%',
         position: 'relative',
         right: '-17px',
+    },
+    spinner: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
     }
 }
 
-const Dashboard = () => {
+const Dashboard = ({ user }) => {
+    const history = useHistory();
     const [isOpen, setIsOpen] = React.useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+    const [accounts, setAccounts] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
     
     const handleToggleOpen = () => setIsOpen(!isOpen);
     const handleToggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+
+    const handleSignOut = async () => {
+       await firebaseAuth.signOut();
+       history.push('/');
+    }
+
+    console.log(user)
+
+    React.useEffect(() => {
+        if (!user) {
+            history.push('/');
+        } else {
+            try {
+                setLoading(true);
+                const collectionRef = firestore.collection(`users/${user.uid}/accounts`).orderBy('date');
+    
+                collectionRef.get().then((collections) => {
+                    const dataStorage = [];
+                    console.log(collections)
+                    collections.forEach(doc => {
+                        const item = {
+                            ...doc.data(),
+                            id: doc.id,
+                        }
+                        
+                        dataStorage.push(item);
+                    })
+
+                    setAccounts(dataStorage);
+                    setLoading(false);
+                })
+            } catch (error) {
+                setLoading(false);
+            }
+        }
+    }, []);
+
 
     return (
         <React.Fragment>
@@ -71,38 +124,34 @@ const Dashboard = () => {
                     <MenuOutlined onClick={handleToggleDrawer} />
                     <div style={{ marginLeft: '0.6rem' }}>KEEP MY PASS</div>
                 </div>
+                <div>
+                    {user && <Button shape="round" type="warning"ghost={true} onClick={handleSignOut}>SIGN OUT</Button>}
+                </div>
             </nav>
             <div style={root.container}>
-                <Card onClick={handleToggleOpen}>
-                    <div style={root.cardDiv}>
-                        <div style={root.cardChild1}>Facebook, Twitter PasswordsFacebook, Twitter Passwords</div>
-                        <div style={root.cardChild2}><RightOutlined /></div>
-                    </div>
-                </Card>
-                <Card onClick={handleToggleOpen}>
-                    <div style={root.cardDiv}>
-                        <div style={root.cardChild1}>Facebook, Twitter Passwords</div>
-                        <div style={root.cardChild2}><RightOutlined /></div>
-                    </div>
-                </Card><Card onClick={handleToggleOpen}>
-                    <div style={root.cardDiv}>
-                        <div style={root.cardChild1}>Facebook, Twitter Passwords</div>
-                        <div style={root.cardChild2}><RightOutlined /></div>
-                    </div>
-                </Card><Card onClick={handleToggleOpen}>
-                    <div style={root.cardDiv}>
-                        <div style={root.cardChild1}>Facebook, Twitter Passwords</div>
-                        <div style={root.cardChild2}><RightOutlined /></div>
-                    </div>
-                </Card><Card onClick={handleToggleOpen}>
-                    <div style={root.cardDiv}>
-                        <div style={root.cardChild1}>Facebook, Twitter Passwords</div>
-                        <div style={root.cardChild2}><RightOutlined /></div>
-                    </div>
-                </Card>
+                {loading ? <Spin tip="Loading..." style={root.spinner}></Spin> : (
+                    accounts && accounts.length ? (
+                        accounts.map(account => (
+                            <React.Fragment>
+                                <Card onClick={handleToggleOpen}>
+                                    <div style={root.cardDiv}>
+                                        <div style={root.cardChild1}>{account.title}</div>
+                                        <div style={root.cardChild2}><RightOutlined /></div>
+                                    </div>
+                                </Card>
+                            </React.Fragment>
+                        ))
+                    ) : (
+                        <div style={root.spinner}>
+                            <FrownOutlined style={{ fontSize: '8rem',color: '#818181' }}/>
+                            <p style={{ color: '#818181', marginTop: '0.7rem', color: 'rgb(129, 129, 129)', fontSize: '1.2rem'}}>You haven't posted yet.</p>
+                        </div>
+                    )
+                )}
             </div>
+            <Button type="primary" shape="circle" icon={<PlusOutlined />} />
             <footer  style={root.footer}>
-                <p style={{ margin: 0 }}>Aw</p>
+                <p style={{ margin: 0 }}>Develop by: Wayan</p>
             </footer>
             <InfoPage isOpen={isOpen} onClose={handleToggleOpen} />
             <Drawer isOpen={isDrawerOpen} onClose={handleToggleDrawer} />

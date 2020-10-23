@@ -31,7 +31,15 @@ const root = {
     }
   }
 
-const Homepage = ({ isLogin, show, handleToggleShow, handleLoginShow}) => {
+const Homepage = ({ 
+    show,
+    isLogin,  
+    handleToggleShow, 
+    handleLoginShow,
+    handleSignIn,
+    handleGoogleSignIn,
+    handleRegister,
+}) => {
 
     return (
         <React.Fragment>
@@ -73,7 +81,14 @@ const Homepage = ({ isLogin, show, handleToggleShow, handleLoginShow}) => {
                         REGISTER
                     </Button>
                 </div>
-                <Login show={show} close={handleToggleShow} isLogin={isLogin} />
+                <Login 
+                    show={show} 
+                    close={handleToggleShow} 
+                    isLogin={isLogin}
+                    handleSignIn={handleSignIn}
+                    handleGoogleSignIn={handleGoogleSignIn}
+                    handleRegister={handleRegister}
+                />
             </header>
         </React.Fragment>
     )
