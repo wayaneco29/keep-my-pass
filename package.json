@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^7.2.1",
     "antd": "^4.7.2",
     "firebase": "^7.24.0",
+    "luxon": "^1.25.0",
     "object-hash": "^2.0.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

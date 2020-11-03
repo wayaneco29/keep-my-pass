@@ -28,6 +28,7 @@ function Login({
         password: '',
         confirmPassword: '',
     })
+    const [loading, setLoading] = React.useState(false);
 
     const handleSignInChange = (event) => {
         event.persist();
@@ -50,26 +51,34 @@ function Login({
     const validateEmail = new RegExp(/\S+@\S+\.\S+/);
 
     const handleValidateSignIn = async () => {
-        const { email, password } = signInCred;
+       try {
+            setLoading(true);
+            const { email, password } = signInCred;
 
-        if (!validateEmail.test(email)) {
-            alert('INVALID EMAIL')
-            return;
-        }
+            if (!validateEmail.test(email)) {
+                alert('INVALID EMAIL')
+                return;
+            }
 
-        if (!password.length) {
-            alert('PLEASE ENTER PASSWORD')
-            return;
-        }
+            if (!password.length) {
+                alert('PLEASE ENTER PASSWORD')
+                return;
+            }
 
-        if (password.length < 6) {
-            alert('PASSWORD MUST ATLEAST 6 CHARACTERS')
-            return;
-        }
+            if (password.length < 6) {
+                alert('PASSWORD MUST ATLEAST 6 CHARACTERS')
+                return;
+            }
 
-        await handleSignIn(signInCred);
-        history.push('/menu')
-        close();
+            const { user } = await handleSignIn(signInCred);
+            if(user) {
+                history.push('/menu')
+                close();
+            }
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+       }
     }
 
     const handleValidateGoogleSignIn = async () => {
@@ -79,21 +88,30 @@ function Login({
     }
 
     const handleValidateRegister = async () => {
-        const { email, password, confirmPassword } = registerCred;
+        try {
+            setLoading(true);
+            const { email, password, confirmPassword } = registerCred;
+    
+            if (!validateEmail.test(email)) {
+                alert('INVALID EMAIL');
+                return;
+            }
+    
+            if (confirmPassword !== password) {
+                alert('PASSWORD NOT MATCH');
+                return;
+            }
+    
+            const { user } = await handleRegister(registerCred);
 
-        if (!validateEmail.test(email)) {
-            alert('INVALID EMAIL');
-            return;
+            if (user) {
+                history.push('/menu')
+                close();
+            }
+            setLoading(false);
+        } catch(error) {
+            setLoading(false);
         }
-
-        if (confirmPassword !== password) {
-            alert('PASSWORD NOT MATCH');
-            return;
-        }
-
-        await handleRegister(registerCred);
-        history.push('/menu')
-        close();
     }
 
     const clearAll = () => {
@@ -159,8 +177,9 @@ function Login({
                                     style={{ margin: '10px 0px' }} 
                                     icon={<UnlockOutlined />}
                                     onClick={handleValidateSignIn}
+                                    disabled={loading}
                                 >
-                                    SIGN IN
+                                    {loading ? 'SIGNING IN' : 'SIGN IN'}
                                 </Button>
                                 <Paragraph 
                                     style={{ textAlign: 'center', margin: '0.7rem 0rem' }}
@@ -243,8 +262,9 @@ function Login({
                                     style={{ margin: '10px 0px' }} 
                                     icon={<UnlockOutlined />} 
                                     onClick={handleValidateRegister}
+                                    disabled={loading}
                                 >
-                                    REGISTER
+                                    {loading ? 'REGISTERING...': 'REGISTER'}
                                 </Button>
                             </React.Fragment>
                         )}

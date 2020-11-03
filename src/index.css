@@ -23,3 +23,7 @@ code {
 .pane__header .slide-pane__close {
   font-size: 2rem;
 }
+
+.ant-notification-notice-message {
+  margin: 0 !important;
+}

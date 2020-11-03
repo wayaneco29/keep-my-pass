@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import Homepage from './components/Homepage';
 import Dashboard from './components/Dashboard';
 
+import { notification } from 'antd';
+
 import './App.css';
 import 'antd/dist/antd.css';
 import "react-sliding-pane/dist/react-sliding-pane.css";
@@ -13,7 +15,7 @@ import firebase, { firebaseAuth } from './firebase';
 const PrivateRoute = ({ user, children, ...props }) => {
 
   if (user) {
-  return <Redirect to="/menu" />
+  return <Redirect to="/menu" user={user} />
   }
   
   return <Route {...props}>{children}</Route>
@@ -38,9 +40,15 @@ function App() {
       const  { user } = await firebaseAuth.signInWithPopup(provider);
 
       setCurrentUser(user);
-
+      notification.open({
+        message: 'Signed In successfully.'
+      })
       setLoading(false);
     } catch (error) {
+      notification.open({
+        message: error.message,
+        className: 'is-grey'
+      })
       setLoading(false);
     }
   }
@@ -51,12 +59,19 @@ function App() {
 
       const { email, password } = credentials;
 
-      const user = await firebaseAuth.signInWithEmailAndPassword(email, password);
+      const { user } = await firebaseAuth.signInWithEmailAndPassword(email, password);
 
       setCurrentUser(user);
+      notification.open({
+        message: 'Signed In successfully.'
+      })
 
       setLoading(false)
     } catch (error) {
+      notification.open({
+        message: error.message,
+        className: 'is-grey'
+      })
       setLoading(false)
     }
   }
@@ -70,12 +85,23 @@ function App() {
       await firebaseAuth.createUserWithEmailAndPassword(email, password);
 
       await firebaseAuth.currentUser.updateProfile({ displayName: name });
-
+      notification.open({
+        message: 'Registered and redirected successfully.'
+      })
       setLoading(false);
     } catch (error) {
+      notification.open({
+        message: error.message,
+        className: 'is-grey'
+      })
       setLoading(false);
     }
   }
+
+  notification.config({
+    placement: 'topRight',
+    duration: 2,
+  })
 
   React.useEffect(() => {
     firebaseAuth.onAuthStateChanged(user => {
